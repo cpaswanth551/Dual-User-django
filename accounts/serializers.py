@@ -1,3 +1,4 @@
+import os
 import random
 import uuid
 from django.conf import settings
@@ -72,76 +73,79 @@ class RegisterationSeriailizer(serializers.ModelSerializer):
         return value
 
 
-class ForgotPasswordSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+# class ForgotPasswordSerializer(serializers.Serializer):
+#     email = serializers.EmailField()
 
-    def validate_email(self, value):
-        try:
-            self.user = WebUser.objects.get(email=value)
-        except WebUser.DoesNotExist:
-            raise serializers.ValidationError("No user found with this email address.")
-        return value
+#     def validate_email(self, value):
+#         try:
+#             self.user = WebUser.objects.get(email=value)
+#         except WebUser.DoesNotExist:
+#             raise serializers.ValidationError("No user found with this email address.")
+#         return value
 
-    def save(self):
-        user = self.user
+#     def save(self):
+#         user = self.user
 
-        token = str(format(random.randint(0, 999999), "06d"))
+#         token = str(format(random.randint(0, 999999), "06d"))
 
-        PasswordResetToken.objects.create(user=user, token=token)
+#         PasswordResetToken.objects.create(user=user, token=token)
+#         reset_url = (
+#             f"{os.environ.get('PASSWORD_RESET_BASE_URL')}/reset-password/{token}"
+#         )
 
-        send_mail(
-            subject="Password Reset Request",
-            message=f"""
-            Hello {user.username},
+#         send_mail(
+#             subject="Password Reset Request",
+#             message=f"""
+#             Hello {user.username},
             
-            You requested to reset your password. Use the following token to reset your password:
+#             You requested to reset your password. Use the following url to reset your password:
             
-            OTP: {token}
+#             URL : {reset_url}
             
-            This token will expire in 24 hours.
+#             This token will expire in 24 hours.
             
-            If you didn't request this, please ignore this email.
+#             If you didn't request this, please ignore this email.
             
-            Thanks,
-            MedWB Team :)
-            """,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-        return True
+#             Thanks,
+#             MedWB Team :)
+#             """,
+#             from_email=settings.DEFAULT_FROM_EMAIL,
+#             recipient_list=[user.email],
+#             fail_silently=False,
+#         )
+#         return True
 
 
-class ResetPasswordSerializer(serializers.Serializer):
-    token = serializers.CharField()
-    password = serializers.CharField(min_length=8, write_only=True)
-    confirm_password = serializers.CharField(min_length=8, write_only=True)
+# class ResetPasswordSerializer(serializers.Serializer):
+#     token = serializers.CharField()
+#     password = serializers.CharField(min_length=8, write_only=True)
+#     confirm_password = serializers.CharField(min_length=8, write_only=True)
 
-    def validate(self, attrs):
-        if attrs["password"] != attrs["confirm_password"]:
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."}
-            )
+#     def validate(self, attrs):
+#         if attrs["password"] != attrs["confirm_password"]:
+#             raise serializers.ValidationError(
+#                 {"password": "Password fields didn't match."}
+#             )
 
-        try:
-            token_obj = PasswordResetToken.objects.get(token=attrs["token"])
-            if not token_obj.is_valid():
-                raise serializers.ValidationError(
-                    {"token": "Token has expired or already been used"}
-                )
-            self.token_obj = token_obj
-            self.user = token_obj.user
-        except PasswordResetToken.DoesNotExist:
-            raise serializers.ValidationError({"token": "Invalid reset token"})
+#         try:
+#             token_obj = PasswordResetToken.objects.get(token=attrs["token"])
+#             if not token_obj.is_valid():
+#                 raise serializers.ValidationError(
+#                     {"token": "Token has expired or already been used"}
+#                 )
+#             self.token_obj = token_obj
+#             self.user = token_obj.user
+#         except PasswordResetToken.DoesNotExist:
+#             raise serializers.ValidationError({"token": "Invalid reset token"})
 
-        return attrs
+#         return attrs
 
-    def save(self):
+#     def save(self):
 
-        self.user.set_password(self.validated_data["password"])
-        self.user.save()
+#         self.user.set_password(self.validated_data["password"])
+#         self.user.save()
 
-        self.token_obj.is_used = True
-        self.token_obj.save()
+#         self.token_obj.is_used = True
+#         self.token_obj.save()
 
-        return self.user
+#         return self.user

@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django.utils import timezone
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -109,3 +110,19 @@ class AdminUser(UserBase):
         self.is_staff = True
         self.is_superuser = self.is_superadmin
         super().save(*args, **kwargs)
+
+
+class AdminPasswordResetToken(models.Model):
+    user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
+    token = models.CharField(max_length=150, unique=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    def is_valid(self):
+        return not self.is_used and self.created_at >= timezone.now() - timedelta(
+            hours=24
+        )
+
+    class Meta:
+        db_table = "admin_password_reset_tokens"

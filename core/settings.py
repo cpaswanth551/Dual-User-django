@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from decouple import config
 
@@ -52,6 +53,11 @@ TEMPLATES = [
         },
     },
 ]
+
+
+
+PASSWORD_RESET_BASE_URL = os.getenv('PASSWORD_RESET_BASE_URL', 'http://localhost:3000/reset-password')
+
 
 
 REST_FRAMEWORK = {

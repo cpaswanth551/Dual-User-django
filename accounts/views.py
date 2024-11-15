@@ -5,13 +5,15 @@ from rest_framework.response import Response
 from django.contrib.auth.hashers import check_password
 from accounts.models import WebUser
 from accounts.serializers import (
-    ForgotPasswordSerializer,
     LoginSerializer,
     RegisterationSeriailizer,
     UserSerializers,
-    ResetPasswordSerializer,
 )
 from core.utils import generate_tokens
+from utils.PasswordSerializers import (
+    WebUserForgotPasswordSerializer,
+    WebUserResetPasswordSerializer,
+)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -86,12 +88,11 @@ class AuthViewSet(viewsets.ViewSet):
 
 
 class AccountPasswordViewSet(viewsets.ViewSet):
-
     permission_classes = [permissions.AllowAny]
 
     @action(detail=False, methods=["post"])
     def forget(self, request):
-        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer = WebUserForgotPasswordSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(
@@ -104,7 +105,7 @@ class AccountPasswordViewSet(viewsets.ViewSet):
 
     @action(detail=False, methods=["post"])
     def reset(self, request):
-        serializer = ResetPasswordSerializer(data=request.data)
+        serializer = WebUserResetPasswordSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(

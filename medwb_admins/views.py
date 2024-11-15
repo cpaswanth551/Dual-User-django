@@ -8,11 +8,17 @@ from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
 
-from accounts.serializers import LoginSerializer
+from accounts.serializers import (
+    LoginSerializer,
+)
 from core.utils import generate_tokens
 from medwb_admins.models import AdminUser, AdminRole, AdminHasPermission
 from medwb_admins.serializers import (
     AdminUserRegistrationSerializer,
+)
+from utils.PasswordSerializers import (
+    AdminUserForgotPasswordSerializer,
+    AdminUserResetPasswordSerializer,
 )
 
 
@@ -125,3 +131,31 @@ class AdminAuthViewset(viewsets.ViewSet):
             return Response(
                 {"error": "Admin user not found"}, status=status.HTTP_404_NOT_FOUND
             )
+
+
+class AdminPasswordViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
+
+    @action(detail=False, methods=["post"])
+    def forget(self, request):
+        serializer = AdminUserForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {
+                    "message": "Password reset instructions have been sent to your email."
+                },
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["post"])
+    def reset(self, request):
+        serializer = AdminUserResetPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Password has been reset successfully."},
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
