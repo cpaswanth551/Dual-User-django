@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import Group, Permission, AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser
 
 
 class UserBase(AbstractBaseUser):
@@ -45,6 +45,9 @@ class WebUser(UserBase):
     ]
     email = models.EmailField(unique=True)
     user_type = models.CharField(max_length=20, choices=USER_TYPE, default="peer")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.user_type == "supervisor":
@@ -63,6 +66,8 @@ class PasswordResetToken(models.Model):
     token = models.CharField(max_length=150, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
     is_used = models.BooleanField(default=False)
 
     def is_valid(self):

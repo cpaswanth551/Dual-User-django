@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-from medwb_admins.models import AdminRole, AdminUser
+from medwb_admins.models import RoleHasPermission, AdminRole, AdminUser
 
 
 class AdminUserRegistrationSerializer(serializers.ModelSerializer):
@@ -55,6 +55,14 @@ class RoleDisplaySerializer(serializers.ModelSerializer):
     class Meta:
         model = AdminRole
         fields = ["id", "name"]
+
+
+class RolehasPermissionerializer(serializers.ModelSerializer):
+    role = AdminRoleSerializer()
+
+    class Meta:
+        model = RoleHasPermission
+        fields = ["permissions", "role"]
 
 
 class AdminUserSerializer(serializers.ModelSerializer):

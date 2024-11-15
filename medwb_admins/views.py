@@ -7,14 +7,18 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from accounts.serializers import (
     LoginSerializer,
 )
 from core.utils import generate_tokens
-from medwb_admins.models import AdminUser, AdminRole, AdminHasPermission
+from medwb_admins.models import AdminUser, AdminRole, RoleHasPermission
 from medwb_admins.serializers import (
+    AdminRoleSerializer,
     AdminUserRegistrationSerializer,
+    AdminUserSerializer,
+    RolehasPermissionerializer,
 )
 from utils.PasswordSerializers import (
     AdminUserForgotPasswordSerializer,
@@ -22,22 +26,52 @@ from utils.PasswordSerializers import (
 )
 
 
-# class AdminRoleViewset(viewsets.ModelViewSet):
-#     queryset = AdminRole.objects.all()
-#     serializer_class = AdminUserSerializer
-#     permission_classes = [IsAuthenticated]
-
-# class RolehasPermissionViewset(viewsets.ModelViewSet):
-#     queryset = AdminHasPermission.objects.all()
-#     serializer_class = AdminUserSerializer
-#     permission_classes = [IsAuthenticated]
-
-# class AdminUserViewset(viewsets.ModelViewSet):
-#     queryset = AdminUser.objects.all()
-#     serializer_class = AdminUserSerializer
-#     permission_classes = [IsAuthenticated]
+@extend_schema_view(
+    list=extend_schema(tags=["role"]),
+    retrieve=extend_schema(tags=["role"]),
+    create=extend_schema(tags=["role"]),
+    update=extend_schema(tags=["role"]),
+    partial_update=extend_schema(tags=["role"]),
+    destroy=extend_schema(tags=["role"]),
+)
+class AdminRoleViewset(viewsets.ModelViewSet):
+    queryset = AdminRole.objects.all()
+    serializer_class = AdminRoleSerializer
+    permission_classes = [IsAuthenticated]
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["RolehasPermission"]),
+    retrieve=extend_schema(tags=["RolehasPermission"]),
+    create=extend_schema(tags=["RolehasPermission"]),
+    update=extend_schema(tags=["RolehasPermission"]),
+    partial_update=extend_schema(tags=["RolehasPermission"]),
+    destroy=extend_schema(tags=["RolehasPermission"]),
+)
+class RolehasPermissionViewset(viewsets.ModelViewSet):
+    queryset = RoleHasPermission.objects.all()
+    serializer_class = RolehasPermissionerializer
+    permission_classes = [IsAuthenticated]
+
+
+@extend_schema_view(
+    list=extend_schema(tags=["Admin"]),
+    retrieve=extend_schema(tags=["Admin"]),
+    create=extend_schema(tags=["Admin"]),
+    update=extend_schema(tags=["Admin"]),
+    partial_update=extend_schema(tags=["Admin"]),
+    destroy=extend_schema(tags=["Admin"]),
+)
+class AdminUserViewset(viewsets.ModelViewSet):
+    queryset = AdminUser.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAuthenticated]
+
+
+@extend_schema_view(
+    token=extend_schema(tags=["Admin"]),
+    register=extend_schema(tags=["Admin"]),
+)
 class AdminAuthViewset(viewsets.ViewSet):
     permission_classes = [AllowAny]
 

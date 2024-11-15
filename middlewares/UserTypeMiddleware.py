@@ -28,6 +28,9 @@ class UserAccessMiddleware(MiddlewareMixin):
             "/api/v1/accounts/user-password/reset/",
             "/api/v1/admin/admin-password/reset/",
             "/api/v1/admin/admin-password/forget/",
+            "/api/schema/",
+            "/api/schema/swagger-ui/",
+            "/api/schema/redoc/",
         ]
 
         if any(request.path.startswith(path) for path in auth_paths):

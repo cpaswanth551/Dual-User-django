@@ -2,7 +2,7 @@ from datetime import timedelta
 from django.utils import timezone
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.contrib.auth.models import Permission, AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 
 
@@ -30,6 +30,7 @@ class UserBase(AbstractBaseUser):
         ),
     )
     date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
 
@@ -39,13 +40,40 @@ class UserBase(AbstractBaseUser):
 
 class AdminRole(models.Model):
     name = models.CharField(max_length=250, null=False, blank=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "roles"
 
 
-class AdminHasPermission(models.Model):
+class Permission(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    codename = models.CharField(max_length=100, unique=True)
+    description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "permissions"
+
+    def __str__(self):
+        return f"{self.name} ({self.codename})"
+
+
+class RoleHasPermission(models.Model):
     permissions = models.ManyToManyField(Permission, related_name="permission")
-    role_id = models.ForeignKey(
+    role = models.ForeignKey(
         AdminRole, related_name="adminrole", on_delete=models.CASCADE
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "rolehaspermissions"
 
 
 class UserManager(BaseUserManager):
@@ -71,7 +99,7 @@ class UserManager(BaseUserManager):
             permissions = Permission.objects.all()
             print(permissions)
             for permission in permissions:
-                AdminHasPermission.objects.create(
+                RoleHasPermission.objects.create(
                     role_id=superuser_role, permissions=permission
                 )
         return superuser_role
@@ -94,6 +122,9 @@ class AdminUser(UserBase):
         default=False,
         help_text=_("Designates whether the user can log into this admin site."),
     )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -117,6 +148,8 @@ class AdminPasswordResetToken(models.Model):
     token = models.CharField(max_length=150, unique=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
     is_used = models.BooleanField(default=False)
 
     def is_valid(self):

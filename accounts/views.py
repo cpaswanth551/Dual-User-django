@@ -1,7 +1,7 @@
 from rest_framework.decorators import action
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
-
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from django.contrib.auth.hashers import check_password
 from accounts.models import WebUser
 from accounts.serializers import (
@@ -16,12 +16,24 @@ from utils.PasswordSerializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(tags=["Users"]),
+    retrieve=extend_schema(tags=["Users"]),
+    create=extend_schema(tags=["Users"]),
+    update=extend_schema(tags=["Users"]),
+    partial_update=extend_schema(tags=["Users"]),
+    destroy=extend_schema(tags=["Users"]),
+)
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializers
     queryset = WebUser.objects.all()
     permission_classes = [permissions.IsAuthenticated]
 
 
+@extend_schema_view(
+    token=extend_schema(tags=["Users"]),
+    register=extend_schema(tags=["Users"]),
+)
 class AuthViewSet(viewsets.ViewSet):
     """
     API Endpont manages authentication actions, including user login and token refresh.

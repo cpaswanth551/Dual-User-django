@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
     "accounts",
     "medwb_admins",
 ]
@@ -55,9 +57,20 @@ TEMPLATES = [
 ]
 
 
+SPECTACULAR_SETTINGS = {
+    "TITLE": "MEDWB",
+    "DESCRIPTION": "MEDWB..",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
+    "SECURITY": [{"BearerAuth": []}],
+}
 
-PASSWORD_RESET_BASE_URL = os.getenv('PASSWORD_RESET_BASE_URL', 'http://localhost:3000/reset-password')
-
+PASSWORD_RESET_BASE_URL = os.getenv(
+    "PASSWORD_RESET_BASE_URL", "http://localhost:3000/reset-password"
+)
 
 
 REST_FRAMEWORK = {
@@ -67,6 +80,8 @@ REST_FRAMEWORK = {
         "core.authentications.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "SCHEMA_PATH_PREFIX": r"/api/v[0-9]",
 }
 
 WSGI_APPLICATION = "core.wsgi.application"
