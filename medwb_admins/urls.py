@@ -6,6 +6,7 @@ from medwb_admins.views import (
     AdminRoleViewset,
     AdminUserViewset,
     RolehasPermissionViewset,
+    WebUserModelViewset,
 )
 
 
@@ -17,6 +18,7 @@ router.register(
 router.register(r"Admin-user", AdminUserViewset, basename="admin_user")
 router.register(r"auth", AdminAuthViewset, basename="auth")
 router.register(r"admin-password", AdminPasswordViewSet, basename="admin_password")
+router.register(r"web-user", WebUserModelViewset, basename="web_user")
 
 
 urlpatterns = [path("", include(router.urls))]

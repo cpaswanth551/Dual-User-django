@@ -8,8 +8,10 @@ from django.core.mail import send_mail
 from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
+from accounts.models import WebUser
 from accounts.serializers import (
     LoginSerializer,
+    UserSerializers,
 )
 from core.utils import generate_tokens
 from medwb_admins.models import AdminUser, AdminRole, RoleHasPermission
@@ -192,3 +194,9 @@ class AdminPasswordViewSet(viewsets.ViewSet):
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WebUserModelViewset(viewsets.ModelViewSet):
+    queryset = WebUser.objects.all()
+    serializer_class = UserSerializers
+    permission_classes = [IsAuthenticated]
