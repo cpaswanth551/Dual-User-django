@@ -63,7 +63,8 @@ class RegisterationSeriailizer(serializers.ModelSerializer):
         return attrs
 
     def validate_email(self, value):
-        if WebUser.objects.filter(email=value).exists():
+        normalized_email = value.lower().strip()
+        if WebUser.objects.filter(email__iexact=normalized_email).exists():
             raise serializers.ValidationError("This email is already registered.")
         return value
 

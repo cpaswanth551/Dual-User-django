@@ -168,6 +168,10 @@ class AdminAuthViewset(viewsets.ViewSet):
             )
 
 
+@extend_schema_view(
+    token=extend_schema(tags=["Admin"]),
+    register=extend_schema(tags=["Admin"]),
+)
 class AdminPasswordViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
 
@@ -196,6 +200,10 @@ class AdminPasswordViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    token=extend_schema(tags=["Admin"]),
+    register=extend_schema(tags=["Admin"]),
+)
 class WebUserModelViewset(viewsets.ModelViewSet):
     queryset = WebUser.objects.all()
     serializer_class = UserSerializers

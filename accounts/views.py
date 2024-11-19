@@ -25,9 +25,12 @@ from utils.PasswordSerializers import (
     destroy=extend_schema(tags=["Users"]),
 )
 class UserViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that allows **WebUser** instances to be viewed, created, updated, or deleted.
+    """
+
     serializer_class = UserSerializers
     queryset = WebUser.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
 
 
 @extend_schema_view(
