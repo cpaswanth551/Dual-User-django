@@ -1,10 +1,8 @@
-from typing import Optional
+from typing import Optional, Callable
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.conf import settings
-from django.utils.deprecation import MiddlewareMixin
-import jwt
 from rest_framework import status
-
+import jwt
 
 from accounts.models import WebUser
 from medwb_admins.models import AdminUser
@@ -14,13 +12,10 @@ def get_user_by_id(username):
     user = WebUser.objects.filter(username=username).first()
     if user:
         return user
-    else:
-
-        return AdminUser.objects.filter(username=username).first()
+    return AdminUser.objects.filter(username=username).first()
 
 
-class UserAccessMiddleware(MiddlewareMixin):
-
+class UserAccessMiddleware:
     PUBLIC_PATHS = {
         # Authentication routes
         "/api/v1/accounts/auth/token/",
@@ -38,17 +33,20 @@ class UserAccessMiddleware(MiddlewareMixin):
         "/api/schema/redoc/",
     }
 
-    def __init__(self, get_response):
-        super().__init__(get_response)
+    def __init__(self, get_response: Callable):
         self.get_response = get_response
 
-    def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:
+    def __call__(self, request: HttpRequest) -> HttpResponse:
+        response = self.process_request(request)
+        if response:
+            return response
+        return self.get_response(request)
 
+    def process_request(self, request: HttpRequest) -> Optional[HttpResponse]:
         if self._is_public_path(request.path):
             return None
 
         try:
-
             token = self._extract_token(request)
             if not token:
                 return self._create_error_response(
@@ -84,7 +82,6 @@ class UserAccessMiddleware(MiddlewareMixin):
             )
 
     def _is_public_path(self, path: str) -> bool:
-
         return any(path.startswith(public_path) for public_path in self.PUBLIC_PATHS)
 
     def _extract_token(self, request: HttpRequest) -> Optional[str]:
@@ -114,14 +111,12 @@ class UserAccessMiddleware(MiddlewareMixin):
             return None
 
     def _get_user(self, payload: dict) -> Optional[object]:
-
         try:
             return get_user_by_id(payload.get("username"))
         except Exception:
             return None
 
     def _check_permissions(self, request: HttpRequest, user: object) -> bool:
-
         is_admin = isinstance(user, AdminUser)
         is_web_user = isinstance(user, WebUser)
 
@@ -136,7 +131,6 @@ class UserAccessMiddleware(MiddlewareMixin):
         return True
 
     def _create_error_response(self, message: str, status_code: int) -> JsonResponse:
-
         return JsonResponse(
             {"error": True, "message": message, "status_code": status_code},
             status=status_code,

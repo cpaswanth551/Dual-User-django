@@ -102,6 +102,10 @@ class AuthViewSet(viewsets.ViewSet):
         )
 
 
+@extend_schema_view(
+    token=extend_schema(tags=["Users"]),
+    register=extend_schema(tags=["Users"]),
+)
 class AccountPasswordViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
 

@@ -53,12 +53,14 @@ class TestAccessMiddleware:
         )
 
     def test_invalid_token_signature(self, api_rf, middleware):
-        invalid_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.invalid-signature"
+        token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InRlc3QifQ.invalid-signature"
         request = api_rf.get("/api/v1/accounts/users/")
-        request.META["HTTP_AUTHORIZATION"] = f"Bearer{invalid_token}"
+        request.META["HTTP_AUTHORIZATION"] = f"Bearer{token}"
         response = middleware.process_request(request)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
 
         response_data = json.loads(response.content.decode("utf-8"))
-        assert response_data["message"] == "Invalid or expired token."
+        assert (
+            response_data["message"] == "Authentication credentials were not provided."
+        )
