@@ -56,12 +56,12 @@ class RolehasPermissionViewset(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(tags=["Admin"]),
-    retrieve=extend_schema(tags=["Admin"]),
-    create=extend_schema(tags=["Admin"]),
-    update=extend_schema(tags=["Admin"]),
-    partial_update=extend_schema(tags=["Admin"]),
-    destroy=extend_schema(tags=["Admin"]),
+    list=extend_schema(tags=["Admin-User"]),
+    retrieve=extend_schema(tags=["Admin-User"]),
+    create=extend_schema(tags=["Admin-User"]),
+    update=extend_schema(tags=["Admin-User"]),
+    partial_update=extend_schema(tags=["Admin-User"]),
+    destroy=extend_schema(tags=["Admin-User"]),
 )
 class AdminUserViewset(viewsets.ModelViewSet):
     queryset = AdminUser.objects.all()
@@ -70,8 +70,9 @@ class AdminUserViewset(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Admin"]),
-    register=extend_schema(tags=["Admin"]),
+    token=extend_schema(tags=["Admin-Auth"], request=LoginSerializer),
+    register=extend_schema(tags=["Admin-Auth"]),
+    approve_admin=extend_schema(tags=["Admin-Auth"]),
 )
 class AdminAuthViewset(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -169,8 +170,8 @@ class AdminAuthViewset(viewsets.ViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Admin"]),
-    register=extend_schema(tags=["Admin"]),
+    forget=extend_schema(tags=["Admin-Password"]),
+    reset=extend_schema(tags=["Admin-Password"]),
 )
 class AdminPasswordViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -201,8 +202,12 @@ class AdminPasswordViewSet(viewsets.ViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Admin"]),
-    register=extend_schema(tags=["Admin"]),
+    list=extend_schema(tags=["Admin"]),
+    retrieve=extend_schema(tags=["Admin"]),
+    create=extend_schema(tags=["Admin"]),
+    update=extend_schema(tags=["Admin"]),
+    partial_update=extend_schema(tags=["Admin"]),
+    destroy=extend_schema(tags=["Admin"]),
 )
 class WebUserModelViewset(viewsets.ModelViewSet):
     queryset = WebUser.objects.all()

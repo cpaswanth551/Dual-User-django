@@ -56,21 +56,24 @@ TEMPLATES = [
     },
 ]
 
-
 SPECTACULAR_SETTINGS = {
     "TITLE": "MEDWB",
     "DESCRIPTION": "MEDWB..",
-    "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_DIST": "SIDECAR",
     "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "REDOC_DIST": "SIDECAR",
-    "SECURITY": [{"BearerAuth": []}],
+    "SECURITY_DEFINITIONS": {
+        "JWT [Bearer {JWT}]": {
+            "name": "Authorization",
+            "type": "apiKey",
+            "in": "header",
+        }
+    },
+    "USE_SESSION_AUTH": False,
 }
 
-PASSWORD_RESET_BASE_URL = os.getenv(
-    "PASSWORD_RESET_BASE_URL", "http://localhost:3000/reset-password"
-)
+PASSWORD_RESET_BASE_URL = config("PASSWORD_RESET_BASE_URL")
 
 
 REST_FRAMEWORK = {

@@ -27,6 +27,7 @@ from utils.PasswordSerializers import (
 class UserViewSet(viewsets.ModelViewSet):
     """
     API endpoint that allows **WebUser** instances to be viewed, created, updated, or deleted.
+
     """
 
     serializer_class = UserSerializers
@@ -34,12 +35,13 @@ class UserViewSet(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Users"]),
-    register=extend_schema(tags=["Users"]),
+    token=extend_schema(tags=["Users-Auth"], request=LoginSerializer),
+    register=extend_schema(tags=["Users-Auth"], request=RegisterationSeriailizer),
 )
 class AuthViewSet(viewsets.ViewSet):
     """
     API Endpont manages authentication actions, including user login and token refresh.
+
     """
 
     permission_classes = [permissions.AllowAny]
@@ -48,6 +50,7 @@ class AuthViewSet(viewsets.ViewSet):
     def token(self, request):
         """
         Authenticates a user and provides access and refresh tokens upon success.
+
         """
 
         serializer = LoginSerializer(data=request.data)
@@ -89,7 +92,7 @@ class AuthViewSet(viewsets.ViewSet):
         user = serializer.save()
         return Response(
             {
-                "message": "user Registeration completed !.",
+                "message": "user Registeration completed.",
                 "user": {
                     "id": user.id,
                     "email": user.email,
@@ -103,8 +106,8 @@ class AuthViewSet(viewsets.ViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Users"]),
-    register=extend_schema(tags=["Users"]),
+    forget=extend_schema(tags=["Users-Password"]),
+    reset=extend_schema(tags=["Users-Password"]),
 )
 class AccountPasswordViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]
