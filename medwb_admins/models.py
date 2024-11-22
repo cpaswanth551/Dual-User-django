@@ -6,6 +6,15 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager
 
 
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+
+    class Meta:
+        abstract = True
+
+
 class UserBase(AbstractBaseUser):
     username = models.CharField(
         _("username"),
@@ -38,23 +47,18 @@ class UserBase(AbstractBaseUser):
         abstract = True
 
 
-class AdminRole(models.Model):
+class AdminRole(BaseModel):
     name = models.CharField(max_length=250, null=False, blank=False, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = "roles"
+        verbose_name = "role"
 
 
-class Permission(models.Model):
+class Permission(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     codename = models.CharField(max_length=100, unique=True)
     description = models.TextField(null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = "permissions"
@@ -63,14 +67,11 @@ class Permission(models.Model):
         return f"{self.name} ({self.codename})"
 
 
-class RoleHasPermission(models.Model):
+class RoleHasPermission(BaseModel):
     permissions = models.ManyToManyField(Permission, related_name="permission")
     role = models.ForeignKey(
         AdminRole, related_name="adminrole", on_delete=models.CASCADE
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     class Meta:
         db_table = "rolehaspermissions"
@@ -105,7 +106,7 @@ class UserManager(BaseUserManager):
         return superuser_role
 
 
-class AdminUser(UserBase):
+class AdminUser(UserBase, BaseModel):
     admin_role = models.ForeignKey(
         AdminRole, related_name="has_permission", on_delete=models.CASCADE
     )
@@ -122,9 +123,6 @@ class AdminUser(UserBase):
         default=False,
         help_text=_("Designates whether the user can log into this admin site."),
     )
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
 
     objects = UserManager()
 
@@ -143,13 +141,10 @@ class AdminUser(UserBase):
         super().save(*args, **kwargs)
 
 
-class AdminPasswordResetToken(models.Model):
+class AdminPasswordResetToken(BaseModel):
     user = models.ForeignKey(AdminUser, on_delete=models.CASCADE)
     token = models.CharField(max_length=150, unique=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
     is_used = models.BooleanField(default=False)
 
     def is_valid(self):
