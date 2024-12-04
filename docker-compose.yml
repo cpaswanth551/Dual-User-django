@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/django
+    ports:
+      - 8000:8000
+    container_name: medwb_backend
+    depends_on:
+      - db
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: postgres:latest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=testdb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    container_name: postgres_db
+
+volumes:
+  db_data:

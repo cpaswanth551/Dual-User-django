@@ -14,8 +14,8 @@ urlpatterns = [
                     "v1/",
                     include(
                         [
-                            path("accounts/", include("accounts.urls")),
                             path("admin/", include("medwb_admins.urls")),
+                            path("accounts/", include("accounts.urls")),
                         ]
                     ),
                 ),

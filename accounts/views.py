@@ -106,8 +106,12 @@ class AuthViewSet(viewsets.ViewSet):
 
 
 @extend_schema_view(
-    forget=extend_schema(tags=["Users-Password"]),
-    reset=extend_schema(tags=["Users-Password"]),
+    forget=extend_schema(
+        tags=["Users-Password"], request=WebUserForgotPasswordSerializer
+    ),
+    reset=extend_schema(
+        tags=["Users-Password"], request=WebUserResetPasswordSerializer
+    ),
 )
 class AccountPasswordViewSet(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]

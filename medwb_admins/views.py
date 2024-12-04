@@ -28,12 +28,12 @@ from utils.PasswordSerializers import (
 
 
 @extend_schema_view(
-    list=extend_schema(tags=["role"]),
-    retrieve=extend_schema(tags=["role"]),
-    create=extend_schema(tags=["role"]),
-    update=extend_schema(tags=["role"]),
-    partial_update=extend_schema(tags=["role"]),
-    destroy=extend_schema(tags=["role"]),
+    list=extend_schema(tags=["Admin-Role"]),
+    retrieve=extend_schema(tags=["Admin-Role"]),
+    create=extend_schema(tags=["Admin-Role"]),
+    update=extend_schema(tags=["Admin-Role"]),
+    partial_update=extend_schema(tags=["Admin-Role"]),
+    destroy=extend_schema(tags=["Admin-Role"]),
 )
 class AdminRoleViewset(viewsets.ModelViewSet):
     queryset = AdminRole.objects.all()
@@ -42,12 +42,12 @@ class AdminRoleViewset(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    list=extend_schema(tags=["RolehasPermission"]),
-    retrieve=extend_schema(tags=["RolehasPermission"]),
-    create=extend_schema(tags=["RolehasPermission"]),
-    update=extend_schema(tags=["RolehasPermission"]),
-    partial_update=extend_schema(tags=["RolehasPermission"]),
-    destroy=extend_schema(tags=["RolehasPermission"]),
+    list=extend_schema(tags=["Admin-RolehasPermission"]),
+    retrieve=extend_schema(tags=["Admin-RolehasPermission"]),
+    create=extend_schema(tags=["Admin-RolehasPermission"]),
+    update=extend_schema(tags=["Admin-RolehasPermission"]),
+    partial_update=extend_schema(tags=["Admin-RolehasPermission"]),
+    destroy=extend_schema(tags=["Admin-RolehasPermission"]),
 )
 class RolehasPermissionViewset(viewsets.ModelViewSet):
     queryset = RoleHasPermission.objects.all()
@@ -70,9 +70,11 @@ class AdminUserViewset(viewsets.ModelViewSet):
 
 
 @extend_schema_view(
-    token=extend_schema(tags=["Admin-Auth"], request=LoginSerializer),
-    register=extend_schema(tags=["Admin-Auth"]),
-    approve_admin=extend_schema(tags=["Admin-Auth"]),
+    token=extend_schema(tags=["Admin-Authentication"], request=LoginSerializer),
+    register=extend_schema(
+        tags=["Admin-Authentication"], request=AdminUserRegistrationSerializer
+    ),
+    approve_admin=extend_schema(tags=["Admin-Authentication"]),
 )
 class AdminAuthViewset(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -81,6 +83,9 @@ class AdminAuthViewset(viewsets.ViewSet):
     def token(self, request):
         """
         Authenticates a user and provides access and refresh tokens upon success.
+
+        :parms request
+
         """
 
         serializer = LoginSerializer(data=request.data)
@@ -94,18 +99,27 @@ class AdminAuthViewset(viewsets.ViewSet):
                 {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
+        print(authenticated_user)
+
+        # checking user is approved or not
+        if not authenticated_user.is_active:
+            return Response(
+                {"error": "User Not Approved"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
         if not check_password(password, authenticated_user.password):
             return Response(
                 {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
             )
 
+        # generating access and refresh tokens
         access_token, refresh_token = generate_tokens(authenticated_user)
+
         return Response(
             {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "user": {
-                    "id": authenticated_user.id,
                     "username": authenticated_user.email,
                     "email": authenticated_user.email,
                 },
@@ -170,8 +184,13 @@ class AdminAuthViewset(viewsets.ViewSet):
 
 
 @extend_schema_view(
-    forget=extend_schema(tags=["Admin-Password"]),
-    reset=extend_schema(tags=["Admin-Password"]),
+    forget=extend_schema(
+        tags=["Admin-Password-Reset"], request=AdminUserForgotPasswordSerializer
+    ),
+    reset=extend_schema(
+        tags=["Admin-Password-Reset"], request=AdminUserResetPasswordSerializer
+    ),
+    approve_admin=extend_schema(tags=["Admin-Authentication"]),
 )
 class AdminPasswordViewSet(viewsets.ViewSet):
     permission_classes = [AllowAny]
@@ -204,9 +223,9 @@ class AdminPasswordViewSet(viewsets.ViewSet):
 @extend_schema_view(
     list=extend_schema(tags=["Admin"]),
     retrieve=extend_schema(tags=["Admin"]),
-    create=extend_schema(tags=["Admin"]),
-    update=extend_schema(tags=["Admin"]),
-    partial_update=extend_schema(tags=["Admin"]),
+    create=extend_schema(tags=["Admin"], request=UserSerializers),
+    update=extend_schema(tags=["Admin"], request=UserSerializers),
+    partial_update=extend_schema(tags=["Admin"], request=UserSerializers),
     destroy=extend_schema(tags=["Admin"]),
 )
 class WebUserModelViewset(viewsets.ModelViewSet):
